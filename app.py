@@ -232,7 +232,7 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
 
 
         # x_strings = df.index.strftime('%m/%d %H:%M')
-        x_strings = df.index.strftime('%Y/%m/%d %H:%M')
+        x_strings = df.index.strftime('%Y/%m/%d\n%H:%M')
         # --- 1. 價格圖 (ax1) ---
         fig.add_trace(go.Scatter(x=x_strings, y=df['Close'], name='Close Price', line=dict(color='#d1d5db', width=2)), row=1, col=1)
         fig.add_trace(go.Scatter(x=x_strings, y=df['5MA'], name='5MA', line=dict(color='#3b82f6', width=1)), row=1, col=1)
