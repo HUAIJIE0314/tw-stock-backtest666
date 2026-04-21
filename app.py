@@ -299,7 +299,15 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
             height=900, 
             hovermode="x unified",
             margin=dict(l=20, r=20, t=40, b=20),
-            showlegend=False # 手機上圖例太佔空間，直接用游標/點擊確認即可
+            # showlegend=False # 手機上圖例太佔空間，直接用游標/點擊確認即可
+            showlegend=True,  # 🌟 1. 這裡改成 True 把它叫回來
+            legend=dict(      # 🌟 2. 新增這段，讓圖例水平排列在圖表正上方
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="right",
+                x=1
+            )
         )
         # 過濾六日空白 (如需過濾盤後時間也可加在此)
         # fig.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])])
