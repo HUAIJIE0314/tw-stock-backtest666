@@ -270,7 +270,13 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
             showlegend=False # 手機上圖例太佔空間，直接用游標/點擊確認即可
         )
         # 過濾六日空白 (如需過濾盤後時間也可加在此)
-        fig.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])])
+        # fig.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])])
+        fig.update_xaxes(
+            rangebreaks=[
+                dict(bounds=["sat", "mon"]), # 隱藏週末 (星期六到星期一早)
+                dict(bounds=[13.5, 9], pattern="hour") # 隱藏盤後 (13:30 到 09:00)
+            ]
+        )
         
         st.plotly_chart(fig, use_container_width=True)
 
