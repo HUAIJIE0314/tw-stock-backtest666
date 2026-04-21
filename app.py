@@ -238,13 +238,24 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
         fig.add_trace(go.Scatter(x=x_strings, y=df[MA_select], name=MA_select, line=dict(color='#ef4444', width=1)), row=1, col=1)
 
         # 標記買賣點
+        # if buy_points:
+        #     b_dates = [b['Date'] for b in buy_points]
+        #     b_prices = [b['Price'] for b in buy_points]
+        #     fig.add_trace(go.Scatter(x=b_dates, y=b_prices, mode='markers', name='Buy',
+        #                              marker=dict(symbol='triangle-up', size=14, color='#22c55e')), row=1, col=1)
+        # if sell_points:
+        #     s_dates = [s['Date'] for s in sell_points]
+        #     s_prices = [s['Price'] for s in sell_points]
+        #     fig.add_trace(go.Scatter(x=s_dates, y=s_prices, mode='markers', name='Sell',
+        #                              marker=dict(symbol='triangle-down', size=14, color='#f97316')), row=1, col=1)
+        # 標記買賣點 (🌟 把 Date 轉成與 X 軸一模一樣的字串)
         if buy_points:
-            b_dates = [b['Date'] for b in buy_points]
+            b_dates = [b['Date'].strftime('%m/%d %H:%M') for b in buy_points] 
             b_prices = [b['Price'] for b in buy_points]
             fig.add_trace(go.Scatter(x=b_dates, y=b_prices, mode='markers', name='Buy',
                                      marker=dict(symbol='triangle-up', size=14, color='#22c55e')), row=1, col=1)
         if sell_points:
-            s_dates = [s['Date'] for s in sell_points]
+            s_dates = [s['Date'].strftime('%m/%d %H:%M') for s in sell_points]
             s_prices = [s['Price'] for s in sell_points]
             fig.add_trace(go.Scatter(x=s_dates, y=s_prices, mode='markers', name='Sell',
                                      marker=dict(symbol='triangle-down', size=14, color='#f97316')), row=1, col=1)
@@ -265,12 +276,23 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
         fig.add_trace(go.Scatter(x=x_strings, y=df['Equity_Curve'], name='Total Equity', line=dict(color='#10b981', width=2)), row=4, col=1)
 
         # --- 畫出垂直買賣貫穿線 ---
+        # if buy_points:
+        #     for b in buy_points:
+        #         fig.add_vline(x=b['Date'], line_width=1, line_dash="dash", line_color="#22c55e", opacity=0.5)
+        # if sell_points:
+        #     for s in sell_points:
+        #         fig.add_vline(x=s['Date'], line_width=1, line_dash="dash", line_color="#f97316", opacity=0.5)
+
+        # --- 畫出垂直買賣貫穿線 (🌟 同樣要轉成字串) ---
         if buy_points:
             for b in buy_points:
-                fig.add_vline(x=b['Date'], line_width=1, line_dash="dash", line_color="#22c55e", opacity=0.5)
+                date_str = b['Date'].strftime('%m/%d %H:%M')
+                fig.add_vline(x=date_str, line_width=1, line_dash="dash", line_color="#22c55e", opacity=0.5)
         if sell_points:
             for s in sell_points:
-                fig.add_vline(x=s['Date'], line_width=1, line_dash="dash", line_color="#f97316", opacity=0.5)
+                date_str = s['Date'].strftime('%m/%d %H:%M')
+                fig.add_vline(x=date_str, line_width=1, line_dash="dash", line_color="#f97316", opacity=0.5)
+
 
         # 圖表版面設定 (過濾掉非交易時間的空白)
         fig.update_layout(
