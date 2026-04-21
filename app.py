@@ -222,10 +222,20 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
             subplot_titles=("價格與均線", "RSI (14)", "KD (60, 3, 3)", "總資金曲線")
         )
 
+
+        # # 原本：
+        # # fig.add_trace(go.Scatter(x=df.index, y=df['Close'], ...))
+
+        # # 改成：
+        # x_strings = df.index.strftime('%m/%d %H:%M')
+        # fig.add_trace(go.Scatter(x=x_strings, y=df['Close'], name='Close Price', line=dict(color='#d1d5db', width=2)), row=1, col=1)
+
+
+        x_strings = df.index.strftime('%m/%d %H:%M')
         # --- 1. 價格圖 (ax1) ---
-        fig.add_trace(go.Scatter(x=df.index, y=df['Close'], name='Close Price', line=dict(color='#d1d5db', width=2)), row=1, col=1)
-        fig.add_trace(go.Scatter(x=df.index, y=df['5MA'], name='5MA', line=dict(color='#3b82f6', width=1)), row=1, col=1)
-        fig.add_trace(go.Scatter(x=df.index, y=df[MA_select], name=MA_select, line=dict(color='#ef4444', width=1)), row=1, col=1)
+        fig.add_trace(go.Scatter(x=x_strings, y=df['Close'], name='Close Price', line=dict(color='#d1d5db', width=2)), row=1, col=1)
+        fig.add_trace(go.Scatter(x=x_strings, y=df['5MA'], name='5MA', line=dict(color='#3b82f6', width=1)), row=1, col=1)
+        fig.add_trace(go.Scatter(x=x_strings, y=df[MA_select], name=MA_select, line=dict(color='#ef4444', width=1)), row=1, col=1)
 
         # 標記買賣點
         if buy_points:
@@ -240,19 +250,19 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
                                      marker=dict(symbol='triangle-down', size=14, color='#f97316')), row=1, col=1)
 
         # --- 2. RSI 圖 (ax2) ---
-        fig.add_trace(go.Scatter(x=df.index, y=df['RSI'], name='RSI', line=dict(color='#8b5cf6', width=1.5)), row=2, col=1)
+        fig.add_trace(go.Scatter(x=x_strings, y=df['RSI'], name='RSI', line=dict(color='#8b5cf6', width=1.5)), row=2, col=1)
         fig.add_hline(y=60, line_dash="dash", line_color="#22c55e", row=2, col=1)
         fig.add_hline(y=50, line_dash="dash", line_color="#f97316", row=2, col=1)
 
         # --- 3. KD 圖 (ax3) ---
-        fig.add_trace(go.Scatter(x=df.index, y=df[k_col], name='K (60,3)', line=dict(color='#f59e0b', width=1.5)), row=3, col=1)
-        fig.add_trace(go.Scatter(x=df.index, y=df[d_col], name='D (3)', line=dict(color='#0ea5e9', width=1.5)), row=3, col=1)
+        fig.add_trace(go.Scatter(x=x_strings, y=df[k_col], name='K (60,3)', line=dict(color='#f59e0b', width=1.5)), row=3, col=1)
+        fig.add_trace(go.Scatter(x=x_strings, y=df[d_col], name='D (3)', line=dict(color='#0ea5e9', width=1.5)), row=3, col=1)
         fig.add_hline(y=80, line_dash="dash", line_color="#ef4444", row=3, col=1)
         fig.add_hline(y=50, line_dash="solid", line_color="#6b7280", opacity=0.5, row=3, col=1)
         fig.add_hline(y=20, line_dash="dash", line_color="#22c55e", row=3, col=1)
 
         # --- 4. 資金曲線圖 (ax4) ---
-        fig.add_trace(go.Scatter(x=df.index, y=df['Equity_Curve'], name='Total Equity', line=dict(color='#10b981', width=2)), row=4, col=1)
+        fig.add_trace(go.Scatter(x=x_strings, y=df['Equity_Curve'], name='Total Equity', line=dict(color='#10b981', width=2)), row=4, col=1)
 
         # --- 畫出垂直買賣貫穿線 ---
         if buy_points:
@@ -271,13 +281,15 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
         )
         # 過濾六日空白 (如需過濾盤後時間也可加在此)
         # fig.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])])
-        fig.update_xaxes(
-            rangebreaks=[
-                dict(bounds=["sat", "mon"]), # 隱藏週末 (星期六到星期一早)
-                dict(bounds=[13.5, 9], pattern="hour") # 隱藏盤後 (13:30 到 09:00)
-            ]
-        )
-        
+        # fig.update_xaxes(
+        #     rangebreaks=[
+        #         dict(bounds=["sat", "mon"]), # 隱藏週末 (星期六到星期一早)
+        #         dict(bounds=[13.5, 9], pattern="hour") # 隱藏盤後 (13:30 到 09:00)
+        #     ]
+        # )
+
+        fig.update_xaxes(type='category', nticks=15)
+
         st.plotly_chart(fig, use_container_width=True)
 
         # ==========================================
