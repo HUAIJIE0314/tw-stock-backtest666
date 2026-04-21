@@ -60,6 +60,8 @@ backtest_days = st.sidebar.slider("回測天數 (yfinance 60m 限制 730 天)", 
 if st.sidebar.button("🚀 執行回測", use_container_width=True):
     
     with st.spinner('正在下載資料與計算中...'):
+        st.markdown('<div id="result"></div>', unsafe_allow_html=True)
+        
         # 處理股票代號與名稱
         stock_dict = get_all_tw_stocks_with_names()
         filtered_list = {k: v for k, v in stock_dict.items() if k.startswith(user_ticker)}
@@ -347,3 +349,4 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
                 use_container_width=True,
                 hide_index=True
             )
+        st.success("回測完成！請向右滑動或關閉選單查看結果。")
