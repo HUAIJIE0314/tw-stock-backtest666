@@ -203,7 +203,7 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
             unrealized_pct = (final_price - entry_price) / entry_price * 100
             
             with st.expander("⚠️ 檢視目前持有未平倉部位 (截至回測最後一筆)", expanded=True):
-                st.info(f"**買入時間:** {entry_date.strftime('%Y/%m/%d %H:%M')} | **買入價格:** {entry_price:.2f} 元 | **持有股數:** {position:,} 股")
+                st.info(f"**買入時間:** {entry_date.strftime('%Y/%m/%d\n%H:%M')} | **買入價格:** {entry_price:.2f} 元 | **持有股數:** {position:,} 股")
                 
                 # 利用顏色標示未實現損益
                 profit_color = "normal" if unrealized_profit == 0 else "inverse" if unrealized_profit < 0 else "normal"
@@ -232,7 +232,7 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
 
 
         # x_strings = df.index.strftime('%m/%d %H:%M')
-        x_strings = df.index.strftime('%Y/%m/%d %H:%M')
+        x_strings = df.index.strftime('%Y/%m/%d\n%H:%M')
         # --- 1. 價格圖 (ax1) ---
         fig.add_trace(go.Scatter(x=x_strings, y=df['Close'], name='Close Price', line=dict(color='#d1d5db', width=2)), row=1, col=1)
         fig.add_trace(go.Scatter(x=x_strings, y=df['5MA'], name='5MA', line=dict(color='#3b82f6', width=1)), row=1, col=1)
@@ -251,12 +251,12 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
         #                              marker=dict(symbol='triangle-down', size=14, color='#f97316')), row=1, col=1)
         # 標記買賣點 (🌟 把 Date 轉成與 X 軸一模一樣的字串)
         if buy_points:
-            b_dates = [b['Date'].strftime('%Y/%m/%d %H:%M') for b in buy_points] 
+            b_dates = [b['Date'].strftime('%Y/%m/%d\n%H:%M') for b in buy_points] 
             b_prices = [b['Price'] for b in buy_points]
             fig.add_trace(go.Scatter(x=b_dates, y=b_prices, mode='markers', name='Buy',
                                      marker=dict(symbol='triangle-up', size=14, color='#22c55e')), row=1, col=1)
         if sell_points:
-            s_dates = [s['Date'].strftime('%Y/%m/%d %H:%M') for s in sell_points]
+            s_dates = [s['Date'].strftime('%Y/%m/%d\n%H:%M') for s in sell_points]
             s_prices = [s['Price'] for s in sell_points]
             fig.add_trace(go.Scatter(x=s_dates, y=s_prices, mode='markers', name='Sell',
                                      marker=dict(symbol='triangle-down', size=14, color='#f97316')), row=1, col=1)
@@ -287,11 +287,11 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
         # --- 畫出垂直買賣貫穿線 (🌟 同樣要轉成字串) ---
         if buy_points:
             for b in buy_points:
-                date_str = b['Date'].strftime('%Y/%m/%d %H:%M')
+                date_str = b['Date'].strftime('%Y/%m/%d\n%H:%M')
                 fig.add_vline(x=date_str, line_width=1, line_dash="dash", line_color="#22c55e", opacity=0.5)
         if sell_points:
             for s in sell_points:
-                date_str = s['Date'].strftime('%Y/%m/%d %H:%M')
+                date_str = s['Date'].strftime('%Y/%m/%d\n%H:%M')
                 fig.add_vline(x=date_str, line_width=1, line_dash="dash", line_color="#f97316", opacity=0.5)
 
 
@@ -332,8 +332,8 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
         else:
             # 整理 DataFrame 並格式化顯示
             df_trades = pd.DataFrame(trade_history)
-            df_trades['Buy_Date'] = df_trades['Buy_Date'].dt.strftime('%Y/%m/%d %H:%M')
-            df_trades['Sell_Date'] = df_trades['Sell_Date'].dt.strftime('%Y/%m/%d %H:%M')
+            df_trades['Buy_Date'] = df_trades['Buy_Date'].dt.strftime('%Y/%m/%d\n%H:%M')
+            df_trades['Sell_Date'] = df_trades['Sell_Date'].dt.strftime('%Y/%m/%d\n%H:%M')
             
             # 使用 Streamlit 原生的 dataframe 表格展示 (支援排序、捲動)
             st.dataframe(
