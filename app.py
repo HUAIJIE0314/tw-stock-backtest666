@@ -332,8 +332,8 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
         else:
             # 整理 DataFrame 並格式化顯示
             df_trades = pd.DataFrame(trade_history)
-            df_trades['Buy_Date'] = df_trades['Buy_Date'].dt.strftime('%m/%d %H:%M')
-            df_trades['Sell_Date'] = df_trades['Sell_Date'].dt.strftime('%m/%d %H:%M')
+            df_trades['Buy_Date'] = df_trades['Buy_Date'].dt.strftime('%Y/%m/%d %H:%M')
+            df_trades['Sell_Date'] = df_trades['Sell_Date'].dt.strftime('%Y/%m/%d %H:%M')
             
             # 使用 Streamlit 原生的 dataframe 表格展示 (支援排序、捲動)
             st.dataframe(
