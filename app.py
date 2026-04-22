@@ -10,7 +10,7 @@ from plotly.subplots import make_subplots
 # 0. 網頁基本設定
 # ==========================================
 st.set_page_config(page_title="台股 60 分 K 趨勢策略回測", page_icon="📈", layout="wide")
-st.title("📈 股 60 分 K 趨勢策略回測機器人")
+st.title("📈 台股 60 分 K 趨勢策略回測機器人")
 
 # ==========================================
 # 1. 資料抓取模組 (使用快取避免重複發送請求)
