@@ -204,7 +204,7 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
             unrealized_pct = (final_price - entry_price) / entry_price * 100
             
             with st.expander("⚠️ 檢視目前持有未平倉部位 (截至回測最後一筆)", expanded=True):
-                st.info(f"**買入時間:** {entry_date.strftime('%Y/%m/%d<br>%H:%M')} | **買入價格:** {entry_price:.2f} 元 | **持有股數:** {position:,} 股")
+                st.info(f"**買入時間:** {entry_date.strftime('%Y/%m/%d %H:%M')} | **買入價格:** {entry_price:.2f} 元 | **持有股數:** {position:,} 股")
                 
                 # 利用顏色標示未實現損益
                 profit_color = "normal" if unrealized_profit == 0 else "inverse" if unrealized_profit < 0 else "normal"
