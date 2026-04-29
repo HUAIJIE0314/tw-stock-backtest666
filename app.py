@@ -59,7 +59,7 @@ backtest_days = st.sidebar.slider("回測天數 (yfinance 60m 限制 730 天)", 
 
 exit_strategy = st.sidebar.radio(
     "🚪 選擇出場策略",
-    ("均線死叉 (5MA破線)", "MACD死叉 (快慢線交叉)", "智慧雙重出場 (過熱MACD死叉 + 均線死叉)")
+    ("均線死叉 (5MA 破 60MA 線)", "MACD死叉 (快慢線交叉)", "MACD重負斜率死叉 (快慢線交叉)", "智慧雙重出場 (過熱MACD死叉 + 非過熱均線死叉)", "智慧雙重出場 (過熱重負斜率MACD死叉 + 非過熱均線死叉)")
 )
 
 if st.sidebar.button("🚀 執行回測", use_container_width=True):
@@ -145,16 +145,34 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
         # 條件：近 5 根 K 棒內 RSI 曾大於 70 (急漲過熱記憶)
         is_rsi_overheated = df['RSI'].rolling(window=5).max() > 70 
 
+        # 計算 MACD 快線的「斜率」 (也就是單根 K 棒的變化量)
+        df['MACD_Slope'] = df[macd_line].diff(1)
+        # 計算過去 20 根 K 棒斜率的「波動率(標準差)」(動態門檻，自動適應不同股價)
+        df['Slope_Std'] = df['MACD_Slope'].rolling(window=15).std()
+        # 定義什麼是「高高往下穿」？
+        # 條件 A: MACD 發生死叉
+        # 條件 B: 昨天死叉前，快線還在零軸之上 (確保是高檔，不是在水下盤整)
+        # 條件 C: 往下的斜率非常陡！(目前的負斜率，比近期平均波動的 1 倍標準差還要深)
+        is_high_steep_cross = df['MACD_Death_Cross'] & (df[macd_line].shift(1) > 0) & (df['MACD_Slope'] < -df['Slope_Std'])
+
         # 根據選項套用邏輯
-        if exit_strategy == "均線死叉 (5MA破線)":
+        if exit_strategy == "均線死叉 (5MA 破 60MA 線)":
             df['Sell_Signal'] = df['MA_Death_Cross']
             
         elif exit_strategy == "MACD死叉 (快慢線交叉)":
             df['Sell_Signal'] = df['MACD_Death_Cross']
-            
-        elif exit_strategy == "智慧雙重出場 (過熱MACD死叉 + 均線死叉)":
+        
+        elif exit_strategy== "MACD重負斜率死叉 (快慢線交叉)"
+            df['Sell_Signal'] = is_high_steep_cross
+
+        elif exit_strategy == "智慧雙重出場 (過熱MACD死叉 + 非過熱均線死叉)":
             condition_fast_exit = is_rsi_overheated & df['MACD_Death_Cross']
             condition_slow_exit = df['MA_Death_Cross']
+            df['Sell_Signal'] = condition_fast_exit | condition_slow_exit
+
+        elif exit_strategy == "智慧雙重出場 (過熱重負斜率MACD死叉 + 非過熱均線死叉)":
+            condition_fast_exit = is_rsi_overheated & df['MACD_Death_Cross']
+            condition_slow_exit = is_high_steep_cross
             df['Sell_Signal'] = condition_fast_exit | condition_slow_exit
 
         df = df.dropna()
