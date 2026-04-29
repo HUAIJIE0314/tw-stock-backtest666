@@ -162,7 +162,7 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
         elif exit_strategy == "MACD死叉 (快慢線交叉)":
             df['Sell_Signal'] = df['MACD_Death_Cross']
         
-        elif exit_strategy== "MACD重負斜率死叉 (快慢線交叉)"
+        elif exit_strategy== "MACD重負斜率死叉 (快慢線交叉)":
             df['Sell_Signal'] = is_high_steep_cross
 
         elif exit_strategy == "智慧雙重出場 (過熱MACD死叉 + 非過熱均線死叉)":
