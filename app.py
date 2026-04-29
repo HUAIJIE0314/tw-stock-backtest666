@@ -104,8 +104,16 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
         stoch = df.ta.stoch(k=KD_K, d=KD_D, smooth_k=KD_SMOOTH)
         df = pd.concat([df, stoch], axis=1)
 
+        # 🌟 計算 MACD
+        macd_df = df.ta.macd(fast=12, slow=26, signal=9)
+        df = pd.concat([df, macd_df], axis=1)
+
+        # 動態抓取欄位名稱
         k_col = [col for col in df.columns if 'STOCHk' in col][0]
         d_col = [col for col in df.columns if 'STOCHd' in col][0]
+        macd_line = [col for col in df.columns if 'MACD_' in col][0]
+        macd_hist = [col for col in df.columns if 'MACDh_' in col][0]
+        macd_signal = [col for col in df.columns if 'MACDs_' in col][0]
 
         # 產生進出場訊號 (嚴格複製)
         df['KD_Cross'] = (df[k_col] > 50) & (df[k_col].shift(1) <= 50)
@@ -215,42 +223,22 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
         # ==========================================
         st.subheader("🎨 策略視覺化圖表")
         
-        # 建立 4 個子圖，共用 X 軸
+        # 🌟 改為 5 個子圖
         fig = make_subplots(
-            rows=4, cols=1, shared_xaxes=True, 
+            rows=5, cols=1, shared_xaxes=True, 
             vertical_spacing=0.03,
-            row_heights=[0.4, 0.15, 0.25, 0.2],
-            subplot_titles=("價格與均線", "RSI (14)", "KD (60, 3, 3)", "總資金曲線")
+            row_heights=[0.35, 0.12, 0.18, 0.18, 0.17],
+            subplot_titles=("價格與均線", "RSI (14)", "KD (60, 3, 3)", "MACD (12, 26, 9)", "總資金曲線")
         )
 
-
-        # # 原本：
-        # # fig.add_trace(go.Scatter(x=df.index, y=df['Close'], ...))
-
-        # # 改成：
-        # x_strings = df.index.strftime('%m/%d %H:%M')
-        # fig.add_trace(go.Scatter(x=x_strings, y=df['Close'], name='Close Price', line=dict(color='#d1d5db', width=2)), row=1, col=1)
-
-
-        # x_strings = df.index.strftime('%m/%d %H:%M')
         x_strings = df.index.strftime('%Y/%m/%d<br>%H:%M')
+        
         # --- 1. 價格圖 (ax1) ---
         fig.add_trace(go.Scatter(x=x_strings, y=df['Close'], name='Close Price', line=dict(color='#d1d5db', width=2)), row=1, col=1)
         fig.add_trace(go.Scatter(x=x_strings, y=df['5MA'], name='5MA', line=dict(color='#3b82f6', width=1)), row=1, col=1)
         fig.add_trace(go.Scatter(x=x_strings, y=df[MA_select], name=MA_select, line=dict(color='#ef4444', width=1)), row=1, col=1)
 
-        # 標記買賣點
-        # if buy_points:
-        #     b_dates = [b['Date'] for b in buy_points]
-        #     b_prices = [b['Price'] for b in buy_points]
-        #     fig.add_trace(go.Scatter(x=b_dates, y=b_prices, mode='markers', name='Buy',
-        #                              marker=dict(symbol='triangle-up', size=14, color='#22c55e')), row=1, col=1)
-        # if sell_points:
-        #     s_dates = [s['Date'] for s in sell_points]
-        #     s_prices = [s['Price'] for s in sell_points]
-        #     fig.add_trace(go.Scatter(x=s_dates, y=s_prices, mode='markers', name='Sell',
-        #                              marker=dict(symbol='triangle-down', size=14, color='#f97316')), row=1, col=1)
-        # 標記買賣點 (🌟 把 Date 轉成與 X 軸一模一樣的字串)
+        # 標記買賣點 (把 Date 轉成與 X 軸一模一樣的字串)
         if buy_points:
             b_dates = [b['Date'].strftime('%Y/%m/%d<br>%H:%M') for b in buy_points] 
             b_prices = [b['Price'] for b in buy_points]
@@ -274,18 +262,18 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
         fig.add_hline(y=50, line_dash="solid", line_color="#6b7280", opacity=0.5, row=3, col=1)
         fig.add_hline(y=20, line_dash="dash", line_color="#22c55e", row=3, col=1)
 
-        # --- 4. 資金曲線圖 (ax4) ---
-        fig.add_trace(go.Scatter(x=x_strings, y=df['Equity_Curve'], name='Total Equity', line=dict(color='#10b981', width=2)), row=4, col=1)
+        # --- 4. MACD 圖 (ax4) 🌟 新增 ---
+        fig.add_trace(go.Scatter(x=x_strings, y=df[macd_line], name='MACD', line=dict(color='#3b82f6', width=1.5)), row=4, col=1)
+        fig.add_trace(go.Scatter(x=x_strings, y=df[macd_signal], name='Signal', line=dict(color='#f59e0b', width=1.5)), row=4, col=1)
+        
+        # 產生 MACD 柱狀圖顏色陣列
+        macd_colors = ['#ef4444' if val >= 0 else '#22c55e' for val in df[macd_hist]]
+        fig.add_trace(go.Bar(x=x_strings, y=df[macd_hist], name='MACD Hist', marker_color=macd_colors, opacity=0.6), row=4, col=1)
+
+        # --- 5. 資金曲線圖 (ax5) ---
+        fig.add_trace(go.Scatter(x=x_strings, y=df['Equity_Curve'], name='Total Equity', line=dict(color='#10b981', width=2)), row=5, col=1)
 
         # --- 畫出垂直買賣貫穿線 ---
-        # if buy_points:
-        #     for b in buy_points:
-        #         fig.add_vline(x=b['Date'], line_width=1, line_dash="dash", line_color="#22c55e", opacity=0.5)
-        # if sell_points:
-        #     for s in sell_points:
-        #         fig.add_vline(x=s['Date'], line_width=1, line_dash="dash", line_color="#f97316", opacity=0.5)
-
-        # --- 畫出垂直買賣貫穿線 (🌟 同樣要轉成字串) ---
         if buy_points:
             for b in buy_points:
                 date_str = b['Date'].strftime('%Y/%m/%d<br>%H:%M')
@@ -295,15 +283,13 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
                 date_str = s['Date'].strftime('%Y/%m/%d<br>%H:%M')
                 fig.add_vline(x=date_str, line_width=1, line_dash="dash", line_color="#f97316", opacity=0.5)
 
-
-        # 圖表版面設定 (過濾掉非交易時間的空白)
+        # 圖表版面設定
         fig.update_layout(
-            height=900, 
+            height=1000,  # 🌟 加高圖表總高度，避免 5 張圖擠在一起
             hovermode="x unified",
             margin=dict(l=20, r=20, t=40, b=20),
-            # showlegend=False # 手機上圖例太佔空間，直接用游標/點擊確認即可
-            showlegend=True,  # 🌟 1. 這裡改成 True 把它叫回來
-            legend=dict(      # 🌟 2. 新增這段，讓圖例水平排列在圖表正上方
+            showlegend=True,  
+            legend=dict(      
                 orientation="h",
                 yanchor="bottom",
                 y=1.02,
@@ -311,17 +297,8 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
                 x=1
             )
         )
-        # 過濾六日空白 (如需過濾盤後時間也可加在此)
-        # fig.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])])
-        # fig.update_xaxes(
-        #     rangebreaks=[
-        #         dict(bounds=["sat", "mon"]), # 隱藏週末 (星期六到星期一早)
-        #         dict(bounds=[13.5, 9], pattern="hour") # 隱藏盤後 (13:30 到 09:00)
-        #     ]
-        # )
-
+        
         fig.update_xaxes(type='category', nticks=15)
-
         st.plotly_chart(fig, use_container_width=True)
 
         # ==========================================
@@ -347,4 +324,3 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
                 use_container_width=True,
                 hide_index=True
             )
-            
