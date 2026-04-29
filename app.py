@@ -171,8 +171,8 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
             df['Sell_Signal'] = condition_fast_exit | condition_slow_exit
 
         elif exit_strategy == "智慧雙重出場 (過熱重負斜率MACD死叉 + 非過熱均線死叉)":
-            condition_fast_exit = is_rsi_overheated & df['MACD_Death_Cross']
-            condition_slow_exit = is_high_steep_cross
+            condition_fast_exit = is_rsi_overheated & is_high_steep_cross
+            condition_slow_exit = df['MA_Death_Cross']
             df['Sell_Signal'] = condition_fast_exit | condition_slow_exit
 
         df = df.dropna()
