@@ -51,7 +51,7 @@ def get_all_tw_stocks_with_names():
 # ==========================================
 st.sidebar.header("⚙️ 回測參數設定")
 # user_ticker = st.sidebar.text_input("股票代號 (不需加 .TW)", value="2337", max_chars=4)
-user_ticker = st.sidebar.text_input("股票代號 (支持4-6碼，如: 0050、2337、00635U)", value="2337", max_chars=6)
+user_ticker = st.sidebar.text_input("股票代號 (支持4-6碼，如: 2330)", value="2337", max_chars=6)
 initial_capital = st.sidebar.number_input("投入本金 (元)", min_value=10000, max_value=10000000, value=500000, step=10000)
 day_interval = st.sidebar.number_input("Day Interval (尋找金叉天數)", min_value=1, max_value=20, value=3, step=1)
 ma_sell = st.sidebar.number_input("賣出均線 (MA_sell)", min_value=5, max_value=240, value=60, step=1)
