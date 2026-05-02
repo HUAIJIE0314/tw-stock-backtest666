@@ -50,7 +50,7 @@ def get_all_tw_stocks_with_names():
 # 2. 側邊欄：參數設定
 # ==========================================
 st.sidebar.header("⚙️ 回測參數設定")
-
+# user_ticker = st.sidebar.text_input("股票代號 (不需加 .TW)", value="2337", max_chars=4)
 user_ticker = st.sidebar.text_input("股票代號 (支持4-6碼，如: 0050、2337、00635U)", value="2337", max_chars=6)
 initial_capital = st.sidebar.number_input("投入本金 (元)", min_value=10000, max_value=10000000, value=500000, step=10000)
 day_interval = st.sidebar.number_input("Day Interval (尋找金叉天數)", min_value=1, max_value=20, value=3, step=1)
@@ -69,12 +69,28 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
         stock_dict = get_all_tw_stocks_with_names()
         filtered_list = {k: v for k, v in stock_dict.items() if k.startswith(user_ticker)}
         
-        if not filtered_list:
-            st.error(f"找不到符合條件的股票代號：{user_ticker}")
-            st.stop()
+        # 如果在 API 清單中找到，使用 API 的資料；否則嘗試直接查詢 Yahoo Finance
+        if filtered_list:
+            ticker_full = list(filtered_list.keys())[0]
+            stock_name = filtered_list[ticker_full]
+        else:
+            # 對於不在 API 清單中的股票（如反向 ETF 00635U），直接嘗試 Yahoo Finance
+            ticker_candidates = [f"{user_ticker}.TW", f"{user_ticker}.TWO", user_ticker]
+            ticker_full = None
+            stock_name = user_ticker  # 用代號作為名稱
             
-        ticker_full = list(filtered_list.keys())[0]
-        stock_name = filtered_list[ticker_full]
+            for candidate in ticker_candidates:
+                try:
+                    test_df = yf.download(candidate, period="1d", interval="60m", progress=False)
+                    if not test_df.empty:
+                        ticker_full = candidate
+                        break
+                except:
+                    pass
+            
+            if not ticker_full:
+                st.error(f"找不到符合條件的股票代號：{user_ticker}（已嘗試 {user_ticker}.TW 和 {user_ticker}.TWO）")
+                st.stop()
         
         # 演算法固定參數
         RSI_PERIOD = 14
