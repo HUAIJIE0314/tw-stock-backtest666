@@ -58,8 +58,13 @@ ma_sell = st.sidebar.number_input("賣出均線 (MA_sell)", min_value=5, max_val
 backtest_days = st.sidebar.slider("回測天數 (yfinance 60m 限制 730 天)", min_value=30, max_value=730, value=120, step=10)
 
 exit_strategy = st.sidebar.radio(
-    "🚪 選擇出場策略",
-    ("均線死叉 (5MA 破 60MA 線)", "MACD死叉 (快慢線交叉)", "MACD重負斜率死叉 (快慢線交叉)", "智慧雙重出場 (過熱MACD死叉 + 非過熱均線死叉)", "智慧雙重出場 (過熱重負斜率MACD死叉 + 非過熱均線死叉)")
+    "🚪 選擇出場策略",(
+    "均線死叉 (5MA 破 60MA 線)(較適合大型權值股)", 
+    "MACD死叉 (快慢線交叉)", 
+    "MACD重負斜率死叉 (快慢線交叉)", 
+    "智慧雙重出場 (過熱MACD死叉 + 非過熱均線死叉)", 
+    "智慧雙重出場 (過熱重負斜率MACD死叉 + 非過熱均線死叉)"
+    )
 )
 
 if st.sidebar.button("🚀 執行回測", use_container_width=True):
@@ -172,7 +177,7 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
         is_high_steep_cross = df['MACD_Death_Cross'] & (df[macd_line].shift(1) > 0) & (df['MACD_Slope'] < -df['Slope_Std'])
 
         # 根據選項套用邏輯
-        if exit_strategy == "均線死叉 (5MA 破 60MA 線)":
+        if exit_strategy == "均線死叉 (5MA 破 60MA 線)(較適合大型權值股)":
             df['Sell_Signal'] = df['MA_Death_Cross']
             
         elif exit_strategy == "MACD死叉 (快慢線交叉)":
