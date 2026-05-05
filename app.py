@@ -69,17 +69,17 @@ backtest_days = st.sidebar.slider("回測天數 (yfinance 60m 限制 730 天)", 
 
 # 1. 在側邊欄加上一些提示文字 (讓 UI 更豐富)
 st.sidebar.markdown("### 🚪 選擇出場策略")
-st.sidebar.caption("💡 **提示：** 權值股適合遲鈍一點的均線，中小型妖股適合敏感的 MACD。")
+st.sidebar.caption("💡 **提示：** 權值股適合遲鈍一點的均線，中小型個股適合敏感的 MACD。")
 
 # 2. 將適合的股性直接寫在選項名稱前
 exit_strategy = st.sidebar.radio(
     "請選擇：",
     (
-        "🔵 【大型權值股】 均線死叉 (5MA 破 60MA)", 
-        "🟠 【中小型個股】 MACD死叉 (快慢線交叉)", 
-        "🟠 【中小型個股】 MACD重負斜率死叉 (快慢線交叉)", 
-        "🟣 【中小型個股】 智慧雙重出場 (過熱MACD死叉 + 非過熱均線死叉)", 
-        "🟣 【中小型個股】 智慧雙重出場 (過熱重負斜率MACD死叉 + 非過熱均線死叉)"
+        "🔵【大型權值股】均線死叉 (5MA 破 60MA)", 
+        "🟠【中小型個股】MACD死叉 (快慢線交叉)", 
+        "🟠【中小型個股】MACD重負斜率死叉 (快慢線交叉)", 
+        "🟣【中小型個股】智慧雙重出場 (過熱MACD死叉 + 非過熱均線死叉)", 
+        "🟣【中小型個股】 智慧雙重出場 (過熱重負斜率MACD死叉 + 非過熱均線死叉)"
     )
 )
 
@@ -215,21 +215,21 @@ if st.sidebar.button("🚀 執行回測", use_container_width=True):
 
 
         # 根據選項套用邏輯 (字串必須與上面的 radio 選項完全一致)
-        if exit_strategy == "🔵 【大型權值股】 均線死叉 (5MA 破 60MA)":
+        if exit_strategy == "🔵【大型權值股】均線死叉 (5MA 破 60MA)":
             df['Sell_Signal'] = df['MA_Death_Cross']
             
-        elif exit_strategy == "🟠 【中小型個股】 MACD死叉 (快慢線交叉)":
+        elif exit_strategy == "🟠【中小型個股】MACD死叉 (快慢線交叉)":
             df['Sell_Signal'] = df['MACD_Death_Cross']
 
-        elif exit_strategy == "🟠 【中小型個股】 MACD重負斜率死叉 (快慢線交叉)":
+        elif exit_strategy == "🟠【中小型個股】MACD重負斜率死叉 (快慢線交叉)":
             df['Sell_Signal'] = is_high_steep_cross
 
-        elif exit_strategy == "🟣 【中小型個股】 智慧雙重出場 (過熱MACD死叉 + 非過熱均線死叉)":
+        elif exit_strategy == "🟣【中小型個股】智慧雙重出場 (過熱MACD死叉 + 非過熱均線死叉)":
             condition_fast_exit = is_rsi_overheated & df['MACD_Death_Cross']
             condition_slow_exit = df['MA_Death_Cross']
             df['Sell_Signal'] = condition_fast_exit | condition_slow_exit
 
-        elif exit_strategy == "🟣 【中小型個股】 智慧雙重出場 (過熱重負斜率MACD死叉 + 非過熱均線死叉)":
+        elif exit_strategy == "🟣【中小型個股】智慧雙重出場 (過熱重負斜率MACD死叉 + 非過熱均線死叉)":
             condition_fast_exit = is_rsi_overheated & is_high_steep_cross
             condition_slow_exit = df['MA_Death_Cross']
             df['Sell_Signal'] = condition_fast_exit | condition_slow_exit
